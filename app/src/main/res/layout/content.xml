@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="20dp"
+    android:background="@android:color/white"
+    android:padding="@dimen/activity_horizontal_margin"
+    android:orientation="vertical">
+    <TextView
+        android:id="@+id/time"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="right"
+        android:layout_margin="5dp"
+        android:text="@string/header_sample"
+        android:textColor="@color/black_overlay"
+        android:textSize="@dimen/sample_text_size"/>
+    <LinearLayout
+        android:layout_margin="5dp"
+        android:layout_marginTop="20dp"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="horizontal">
+
+        <EditText
+            android:maxLines="1"
+            android:singleLine="true"
+            android:maxLength="15"
+            android:id="@+id/trade_name"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            android:hint="商品名称"
+            android:textColor="@color/black_overlay"
+            android:textSize="@dimen/button_text_size" />
+        <EditText
+            android:digits="0123456789."
+            android:maxLines="1"
+            android:singleLine="true"
+            android:maxLength="15"
+            android:id="@+id/trade_price"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            android:hint="商品价格"
+            android:inputType="number"
+            android:textColor="@color/black_overlay"
+            android:textSize="@dimen/button_text_size" />
+
+    </LinearLayout>
+    <LinearLayout
+        android:layout_margin="5dp"
+        android:layout_weight="1"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:orientation="horizontal">
+        <Spinner
+            android:id="@+id/bill_type"
+            android:entries="@array/billType"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"></Spinner>
+
+    </LinearLayout>
+    <LinearLayout
+        android:layout_margin="5dp"
+        android:layout_weight="1"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="20dp"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/button_close"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="取消"
+            android:textColor="@color/black_overlay"
+            android:textSize="@dimen/button_text_size" />
+
+        <Button
+            android:id="@+id/button_add"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="添加"
+            android:textColor="@color/black_overlay"
+            android:textSize="@dimen/button_text_size" />
+    </LinearLayout>
+
+</LinearLayout>
+

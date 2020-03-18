@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="billType">
+        <item>生活日用</item>
+        <item>餐饮美食</item>
+        <item>服饰美容</item>
+        <item>日常缴费</item>
+        <item>交通出行</item>
+        <item>住房物业</item>
+        <item>电子设备</item>
+        <item>电影娱乐</item>
+        <item>其他</item>
+        <item>工资收入</item>
+    </string-array>
+</resources>
