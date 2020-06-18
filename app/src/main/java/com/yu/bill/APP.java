@@ -1,6 +1,7 @@
 package com.yu.bill;
 
 import android.app.Application;
+import android.content.ContentResolver;
 import android.content.Context;
 
 /**
@@ -16,5 +17,11 @@ public class APP extends Application {
     }
     public static Context getContext(){
         return context;
+    }
+
+
+    @Override
+    public ContentResolver getContentResolver() {
+        return super.getContentResolver();
     }
 }

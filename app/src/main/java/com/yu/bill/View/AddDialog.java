@@ -8,7 +8,9 @@ import android.content.Context;
 import android.os.Bundle;
 
 import android.text.format.Time;
+import android.util.DisplayMetrics;
 import android.view.Display;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
@@ -22,6 +24,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
+import com.yu.bill.Model.CommodityBean;
 import com.yu.bill.R;
 import com.yu.bill.utils.BaseDialog;
 
@@ -37,25 +40,49 @@ public class AddDialog extends Dialog {
     private DismissListener dismissListener;
     private AddListener addListener;
     private String time, type;
+    private CommodityBean commodityBean;
+    private ViewHolder viewHolder;
 
     public AddDialog(Context context) {
         super(context);
         this.context = context;
     }
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        View view = LayoutInflater.from(context).inflate(R.layout.content, null);
-        setTitle("添加商品");
+    public void EditDialog(CommodityBean commodityBean) {
+        this.commodityBean = commodityBean;
+        setTitle(context.getResources().getString(R.string.header_title_edit));
+        viewHolder.time_text.setText(commodityBean.getCommodityTime());
+        setCanceledOnTouchOutside(true);//控制返回键是否dismiss
+        viewHolder.button_add.setText(context.getResources().getString(R.string.button_bottom_edit));
+        viewHolder.trade_name.setText(commodityBean.getCommodityName());
+        viewHolder.trade_price.setText(commodityBean.getCommodityMoney());
+    }
+
+    public void AddDialog() {
+        setTitle(context.getResources().getString(R.string.header_title_add));
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy年MM月dd日-HH:mm:ss");// HH:mm:ss
         //获取当前时间
         Date date = new Date(System.currentTimeMillis());
         time = simpleDateFormat.format(date);
-        final ViewHolder viewHolder = new ViewHolder(view);
-        viewHolder.trade_name.requestFocus();
-//        InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
-//        imm.toggleSoftInput(0, InputMethodManager.HIDE_NOT_ALWAYS);
+        viewHolder.time_text.setText(time);
+        setCanceledOnTouchOutside(false);//控制返回键是否dismiss
+        viewHolder.button_add.setText(context.getResources().getString(R.string.button_bottom_add));
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        View view = LayoutInflater.from(context).inflate(R.layout.content, null);
+        viewHolder = new ViewHolder(view);
+        setContentView(view);//这行一定要写在前面
+        setCancelable(false);//点击外部不可dismiss
+        viewHolder.button_close.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (dismissListener != null) dismissListener.OnDismiss();
+                dismiss();
+            }
+        });
         viewHolder.spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -67,39 +94,22 @@ public class AddDialog extends Dialog {
 
             }
         });
-        viewHolder.time_text.setText(time);
-        viewHolder.button_close.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (dismissListener != null) dismissListener.OnDismiss();
-                dismiss();
-            }
-        });
         viewHolder.button_add.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (addListener != null) {
                     if (!(viewHolder.trade_name.getText().toString().isEmpty() || viewHolder.trade_price.getText().toString().isEmpty() || type.isEmpty()))
-                        if (type.equals("工资收入")){
-                            String priceString = "+" + viewHolder.trade_price.getText().toString();
-                            addListener.OnAdd(viewHolder.trade_name.getText().toString(), time, priceString, type);
-                        }else {
-                            String priceString = "-" + viewHolder.trade_price.getText().toString();
-                            addListener.OnAdd(viewHolder.trade_name.getText().toString(), time, priceString, type);
-                        }
+                        addListener.OnAdd(viewHolder.trade_name.getText().toString(), time, viewHolder.trade_price.getText().toString(), type);
                 }
             }
         });
-        setContentView(view);//这行一定要写在前面
-        setCancelable(false);//点击外部不可dismiss
-        setCanceledOnTouchOutside(false);//控制返回键是否dismiss
     }
 
 
     private class ViewHolder {
         EditText trade_name, trade_price;
         Button button_close, button_add;
-        TextView title_text, time_text;
+        TextView time_text;
         Spinner spinner;
 
         public ViewHolder(View view) {
@@ -107,7 +117,6 @@ public class AddDialog extends Dialog {
             trade_price = view.findViewById(R.id.trade_price);
             button_close = view.findViewById(R.id.button_close);
             button_add = view.findViewById(R.id.button_add);
-            title_text = view.findViewById(R.id.title);
             time_text = view.findViewById(R.id.time);
             spinner = view.findViewById(R.id.bill_type);
         }
@@ -141,5 +150,11 @@ public class AddDialog extends Dialog {
          * @param type  种类
          */
         void OnAdd(String Name, String time, String Price, String type);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        this.commodityBean = null;
     }
 }

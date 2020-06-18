@@ -1,5 +1,6 @@
 package com.yu.bill;
 
+import android.Manifest;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
@@ -12,6 +13,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.yu.bill.Model.BillBean;
@@ -28,6 +30,7 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
     private boolean IsShowRemove = false;
     private Context context;
     private Removelistener removelistener;
+    private EditListener editListener;
 
     public Adapter(Context context) {
         this.context = context;
@@ -43,7 +46,6 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder holder, final int position) {
         holder.CommodityName.setText(MainActivity.commodityBeanList.get(position).getCommodityName());
-        holder.CommodityMoney.setText(MainActivity.commodityBeanList.get(position).getCommodityMoney());
         holder.CommodityTime.setText(MainActivity.commodityBeanList.get(position).getCommodityTime());
         holder.CommodityType.setText(MainActivity.commodityBeanList.get(position).getCommodityType());
         if (IsShowRemove) {
@@ -58,14 +60,26 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
                 MainActivity.commodityBeanList.remove(position);
                 BillDBHelper.getInstance().deleteBillByTime(holder.CommodityTime.getText().toString());
                 notifyDataSetChanged();
-                if (removelistener!=null) removelistener.OnSusses();
+                if (removelistener != null) removelistener.OnSusses();
             }
         });
-        if (Integer.parseInt(MainActivity.commodityBeanList.get(position).getCommodityMoney()) <= 0){
-            holder.CommodityMoney.setTextColor(context.getResources().getColor(R.color.red));
-        }else {
+        if (MainActivity.commodityBeanList.get(position).getCommodityType().equals("工资收入")) {
+            String priceString = "+" + MainActivity.commodityBeanList.get(position).getCommodityMoney();
             holder.CommodityMoney.setTextColor(context.getResources().getColor(R.color.green));
+            holder.CommodityMoney.setText(priceString);
+        } else {
+            String priceString = "-" + MainActivity.commodityBeanList.get(position).getCommodityMoney();
+            holder.CommodityMoney.setTextColor(context.getResources().getColor(R.color.red));
+            holder.CommodityMoney.setText(priceString);
         }
+        holder.item.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (editListener != null) {
+                    editListener.OnEdit(position);
+                }
+            }
+        });
     }
 
     @Override
@@ -80,6 +94,7 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
         public TextView CommodityTime;
         public ImageView Remove;
         public TextView CommodityType;
+        public ConstraintLayout item;
 
         public ViewHolder(View v) {
             super(v);
@@ -88,7 +103,7 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
             CommodityTime = v.findViewById(R.id.CommodityTime);
             Remove = v.findViewById(R.id.remove_image);
             CommodityType = v.findViewById(R.id.CommodityType);
-
+            item = v.findViewById(R.id.recyclerView_item);
         }
     }
 
@@ -106,12 +121,35 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
         }
     }
 
+    public void editTrade(int posion, String Name, String Price, String type) {
+        MainActivity.commodityBeanList.get(posion).setCommodityName(Name);
+        MainActivity.commodityBeanList.get(posion).setCommodityMoney(Price);
+        MainActivity.commodityBeanList.get(posion).setCommodityType(type);
+        BillDBHelper.getInstance().updateBill(MainActivity.commodityBeanList.get(posion));
+        notifyDataSetChanged();
+    }
+
     public void ShowRemove(Removelistener removelistener) {
         IsShowRemove = !this.IsShowRemove;
         this.removelistener = removelistener;
         notifyDataSetChanged();
     }
-    public interface Removelistener{
+
+    public EditListener getEditListener() {
+        return editListener;
+    }
+
+    public void setEditListener(EditListener editListener) {
+        this.editListener = editListener;
+    }
+
+    public interface Removelistener {
         void OnSusses();
+    }
+
+    public interface EditListener {
+//        void OnEdit(String name, String price, String time, String type);
+
+        void OnEdit(int posion);
     }
 }

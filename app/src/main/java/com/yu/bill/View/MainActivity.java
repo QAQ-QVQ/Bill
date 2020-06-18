@@ -1,33 +1,38 @@
 package com.yu.bill.View;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.DividerItemDecoration;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.AlertDialog;
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.orhanobut.dialogplus.DialogPlus;
-import com.orhanobut.dialogplus.OnItemClickListener;
-import com.orhanobut.dialogplus.ViewHolder;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.yu.bill.Adapter;
 import com.yu.bill.BillDBHelper;
 import com.yu.bill.BillOpenHelper;
 import com.yu.bill.Model.BillBean;
 import com.yu.bill.Model.CommodityBean;
 import com.yu.bill.R;
+import com.yu.bill.utils.FileUtils;
 
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,6 +42,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private TextView addInButton, editButton, bill_sizeText, settingButton, outText, inText, billNameText;
     private Adapter adapter;
     private RelativeLayout background;
+    private AddDialog addDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,23 +50,41 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
         recyclerView = findViewById(R.id.recyclerView);
         initUI();
-        initData();
+        initData(savedInstanceState);
     }
 
-    private void initData() {
+    private void initData(Bundle savedInstanceState) {
+
+//        addDialog.show();
+//        addDialog.dismiss();
         BillOpenHelper billOpenHelper = new BillOpenHelper(this);
         commodityBeanList = new ArrayList<>();
         commodityBeanList = BillDBHelper.getInstance().getAllBills();
         adapter = new Adapter(this);
+        adapter.setEditListener(new Adapter.EditListener() {
+            @Override
+            public void OnEdit(final int posion) {
+                ShowDialog();
+                addDialog.EditDialog(commodityBeanList.get(posion));
+                addDialog.setAddListener(new AddDialog.AddListener() {
+                    @Override
+                    public void OnAdd(String Name, String time, String Price, String type) {
+                        adapter.editTrade(posion, Name, Price, type);
+                        RefreshUI();
+                        addDialog.dismiss();
+                    }
+                });
+            }
+        });
         recyclerView.setAdapter(adapter);
         RefreshUI();
     }
 
     private void RefreshUI() {
-        int priceIn = 0, priceOut = 0;
+        float priceIn = 0, priceOut = 0;
         for (CommodityBean commodityBean : commodityBeanList) {
-            int price = Integer.parseInt(commodityBean.getCommodityMoney());
-            if (price > 0) {
+            float price = Float.parseFloat(commodityBean.getCommodityMoney());
+            if (commodityBean.getCommodityType().equals("工资收入")) {
                 priceIn += price;
             } else {
                 priceOut += price;
@@ -69,9 +93,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         outText.setText(priceOut + "");
         inText.setText(priceIn + "");
         if (BillDBHelper.getInstance().getBillCount() != 0){
-            bill_sizeText.setText("共" + (BillDBHelper.getInstance().getBillCount() - 1) + "条");
+            bill_sizeText.setText("共" + (BillDBHelper.getInstance().getBillCount() - 1 ) + "条");
         }else {
-            bill_sizeText.setText("共" + 0 + "条");
+            bill_sizeText.setText("共 0 条");
         }
 
     }
@@ -99,7 +123,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.add_in:
-                final AddDialog addDialog = new AddDialog(this);
+                ShowDialog();
+                addDialog.AddDialog();
                 addDialog.setAddListener(new AddDialog.AddListener() {
                     @Override
                     public void OnAdd(String Name, String time, String Price, String type) {
@@ -108,7 +133,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         addDialog.dismiss();
                     }
                 });
-                addDialog.show();
                 break;
             case R.id.edit:
                 adapter.ShowRemove(new Adapter.Removelistener() {
@@ -119,13 +143,46 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 });
                 break;
             case R.id.bill_size:
+                if (FileUtils.copy("/storage/emulated/0/Android/data/com.yu.bill/db/bill.db", "/data/data/com.yu.bill/databases/bill.db", new FileUtils.OnReplaceListener() {
+                    @Override
+                    public boolean onReplace(File srcFile, File destFile) {
 
+                        return false;
+                    }
+                })) {
+                    Toast.makeText(this, "导入成功", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(this, "导入失败", Toast.LENGTH_SHORT).show();
+                }
                 break;
             case R.id.setting:
-                Toast.makeText(this, "setting", Toast.LENGTH_SHORT).show();
+                if (FileUtils.copy("/data/data/com.yu.bill/databases/bill.db", "/storage/emulated/0/Android/data/com.yu.bill/db/bill.db", new FileUtils.OnReplaceListener() {
+                    @Override
+                    public boolean onReplace(File srcFile, File destFile) {
+
+                        return false;
+                    }
+                })) {
+                    Toast.makeText(this, "导出成功", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(this, "导出失败", Toast.LENGTH_SHORT).show();
+                }
+
                 break;
             default:
                 break;
         }
+    }
+
+    private void ShowDialog() {
+        addDialog = new AddDialog(MainActivity.this);
+        addDialog.show();
+        Window window = addDialog.getWindow();
+        WindowManager.LayoutParams lp = window.getAttributes();
+//将宽度值dp转px
+        lp.width = this.getResources().getDimensionPixelOffset(R.dimen.dp_310);
+//高度自适应(也可设置为固定值,同宽度设置方法)
+        lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
+        addDialog.getWindow().setAttributes(lp);
     }
 }

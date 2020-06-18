@@ -120,28 +120,18 @@ public class BillDBHelper {
     }
 
     /**
-     * 更新妹子信息(根据_id)
-     * @param _id
-     * @param sister
-     * @param flag
-     * @return
+     * 更新妹子信息(根据time)
+     * @param commodityBean 更新数据
      */
-//    public void updateSister(String _id, ResultsBean sister, int flag) {
-//        db = getWritableDB();
-//        ContentValues contentValues = new ContentValues();
-//        contentValues.put(TableDefine.COLUMN_FULI_ID,sister.get_id());
-//        contentValues.put(TableDefine.COLUMN_FULI_CREATEAT,sister.getCreatedAt());
-//        contentValues.put(TableDefine.COLUMN_FULI_DESC,sister.getDesc());
-//        contentValues.put(TableDefine.COLUMN_FULI_PUBLISHEDAT,sister.getPublishedAt());
-//        contentValues.put(TableDefine.COLUMN_FULI_SOURCE,sister.getSource());
-//        contentValues.put(TableDefine.COLUMN_FULI_TYPE,sister.getType());
-//        contentValues.put(TableDefine.COLUMN_FULI_URL,sister.getUrl());
-//        contentValues.put(TableDefine.COLUMN_FULI_USED,sister.isUsed());
-//        contentValues.put(TableDefine.COLUMN_FULI_WHO,sister.getWho());
-//        contentValues.put(TableDefine.COLUMN_FULI_FLAG,flag);
-//        db.update(TableDefine.TABLE_FULI,contentValues,"_id =?",new String[]{_id});
-//        closeIO(null);
-//    }
+    public void updateBill(CommodityBean commodityBean) {
+        db = getWritableDB();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(TableDefine.BILL_NAME,commodityBean.getCommodityName());
+        contentValues.put(TableDefine.BILL_PRICE,commodityBean.getCommodityMoney());
+        contentValues.put(TableDefine.BILL_TYPE,commodityBean.getCommodityType());
+        db.update(TableDefine.TABLE_BILL,contentValues,"bill_time =?",new String[]{commodityBean.getCommodityTime()});
+        closeIO(null);
+    }
     /**
      *
      * 查询妹子信息(根据flag,_id)

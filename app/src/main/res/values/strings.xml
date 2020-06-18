@@ -7,12 +7,14 @@
     <string name="dialog_title">Dialog setup:</string>
     <string name="footer">Footer</string>
     <string name="header">Header</string>
-    <string name="header_title">添加商品</string>
+    <string name="header_title_add">添加商品</string>
+    <string name="header_title_edit">修改商品</string>
     <string name="header_sample">2020:3:13</string>
     <string name="footer_button_close">CLOSE</string>
     <string name="footer_button_confirm">CONFIRM</string>
     <string name="footer_sample">SAMPLE FOOTER</string>
-    <string name="button_bottom">Bottom</string>
+    <string name="button_bottom_add">添加</string>
+    <string name="button_bottom_edit">修改</string>
     <string name="button_center">Center</string>
     <string name="button_top">Top</string>
     <string name="google_plus_title">Google Plus</string>
