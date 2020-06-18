@@ -60,7 +60,9 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
                 MainActivity.commodityBeanList.remove(position);
                 BillDBHelper.getInstance().deleteBillByTime(holder.CommodityTime.getText().toString());
                 notifyDataSetChanged();
-                if (removelistener != null) removelistener.OnSusses();
+                if (removelistener != null){
+                    removelistener.OnSusses();
+                }
             }
         });
         if (MainActivity.commodityBeanList.get(position).getCommodityType().equals("工资收入")) {
